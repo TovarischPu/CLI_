@@ -57,6 +57,22 @@ class DependencyGraph:
 
         _process_level([start], 1)
         return result
+    def to_dot(self, root: str) -> str:
+        lines: List[str] = ["digraph dependencies {"]
+        lines.append("    rankdir=LR;")
+        lines.append(
+            '    node [shape=box, style=filled, '
+            'fillcolor=lightblue, fontname=Arial];'
+        )
+        lines.append(
+            f'    "{root}" [fillcolor=gold, '
+            f'fontcolor=black, penwidth=2];'
+        )
+        for source, targets in self.adjacency_list.items():
+            for target in targets:
+                lines.append(f'    "{source}" -> "{target}";')
+        lines.append("}")
+        return "\n".join(lines)
 
 
 class GraphBuilder:

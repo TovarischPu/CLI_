@@ -1,4 +1,4 @@
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as et
 
 MAVEN_NS = "http://maven.apache.org/POM/4.0.0"
 NS_MAP = {"m": MAVEN_NS}
@@ -22,7 +22,7 @@ def build_pom_url(source: str, package: str) -> str:
 
 
 def parse_direct_dependencies(xml_text: str) -> list[dict]:
-    root = ET.fromstring(xml_text)
+    root = et.fromstring(xml_text)
     dependencies = []
     deps_block = root.find("m:dependencies", NS_MAP)
     if deps_block is None:
