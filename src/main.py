@@ -14,7 +14,10 @@ def _fetch_real_deps(pkg: str, source: str) -> List[str]:
     try:
         xml_content = download_text(url)
         deps = parse_direct_dependencies(xml_content)
-        return [f"{d['groupId']}:{d['artifactId']}:{d['version']}" for d in deps]
+        return [
+            f"{d['groupId']}:{d['artifactId']}:{d['version']}"
+            for d in deps
+        ]
     except RuntimeError as exc:
         print(f"[WARN] {exc}")
         return []
@@ -34,6 +37,20 @@ def _print_graph(graph: DependencyGraph) -> None:
             print(f"  {source} -> (нет зависимостей)")
 
 
+def _print_reverse_graph(
+    graph: DependencyGraph, target: str
+) -> None:
+    print(f"\nОбратные зависимости для пакета [{target}]:")
+    has_any = False
+    for source, targets in graph.adjacency_list.items():
+        if targets:
+            has_any = True
+            targets_str = ", ".join(targets)
+            print(f"  {source} -> {targets_str}")
+    if not has_any:
+        print("  (нет обратных зависимостей)")
+
+
 def run(argv: Sequence[str]) -> int:
     try:
         config = safe_parse_args(argv)
@@ -51,7 +68,10 @@ def run(argv: Sequence[str]) -> int:
             test_data = parse_test_file(config.source)
             fetch_func = lambda pkg: _fetch_test_deps(pkg, test_data)
         except FileNotFoundError:
-            print(f"[ERROR] Файл не найден: {config.source}", file=sys.stderr)
+            print(
+                f"[ERROR] Файл не найден: {config.source}",
+                file=sys.stderr,
+            )
             return 1
     else:
         fetch_func = lambda pkg: _fetch_real_deps(pkg, config.source)
@@ -61,10 +81,19 @@ def run(argv: Sequence[str]) -> int:
         filter_str=config.filter_substring,
         fetch_func=fetch_func,
     )
-    
     graph = builder.build(config.package)
-    _print_graph(graph)
-    
+
+    if config.reverse:
+        rev_graph = graph.reverse()
+        result = rev_graph.bfs(
+            config.package,
+            config.max_depth,
+            config.filter_substring,
+        )
+        _print_reverse_graph(result, config.package)
+    else:
+        _print_graph(graph)
+
     return 0
 
 

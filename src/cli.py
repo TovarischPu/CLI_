@@ -19,27 +19,31 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--package", required=True,
-        help="Имя анализируемого пакета"
+        help="Имя анализируемого пакета",
     )
     parser.add_argument(
         "--source", required=True,
-        help="URL репозитория или путь к тестовому файлу"
+        help="URL репозитория или путь к тестовому файлу",
     )
     parser.add_argument(
         "--test-mode", action="store_true",
-        help="Режим работы с тестовым репозиторием"
+        help="Режим работы с тестовым репозиторием",
     )
     parser.add_argument(
         "--ascii-tree", action="store_true",
-        help="Выводить зависимости в виде ASCII-дерева"
+        help="Выводить зависимости в виде ASCII-дерева",
     )
     parser.add_argument(
         "--max-depth", type=int, default=_DEFAULT_MAX_DEPTH,
-        help="Максимальная глубина анализа"
+        help="Максимальная глубина анализа",
     )
     parser.add_argument(
         "--filter", default="",
-        help="Подстрока для фильтрации пакетов"
+        help="Подстрока для фильтрации пакетов",
+    )
+    parser.add_argument(
+        "--reverse", action="store_true",
+        help="Выводить обратные зависимости пакета",
     )
     return parser
 
@@ -58,6 +62,7 @@ def parse_args(argv: Sequence[str]) -> AppConfig:
         ascii_tree=args.ascii_tree,
         max_depth=max_depth,
         filter_substring=filter_substring,
+        reverse=args.reverse,
     )
 
 
